@@ -1,0 +1,413 @@
+/* ==========================================================================
+   Kisium – Design-Layer (Casper)
+   Idee: Logbuch auf einem Server. Papierweiß, feines Punktraster, Monospace
+   für alles Technische, Serif für das Lesen. Ein Akzent: Violett.
+   ========================================================================== */
+
+:root {
+  --k-bg: #fbfaf8;
+  --k-ink: #16181c;
+  --k-muted: #6b7280;
+  --k-faint: #9aa1aa;
+  --k-line: rgba(22, 24, 28, .10);
+  --k-accent: #5b46e0;
+  --k-violet: #5b46e0;
+  --k-green: #0f9d58;
+  --k-amber: #d98324;
+  --k-cyan: #1f7fc4;
+  --k-rose: #d6355b;
+  --k-ok: #2f9e6b;
+  --k-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --k-serif: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+}
+
+/* ---------- Grundfläche: Papier mit Punktraster ---------- */
+body {
+  background-color: var(--k-bg);
+  background-image: radial-gradient(rgba(22, 24, 28, .055) 1px, transparent 1px);
+  background-size: 22px 22px;
+  background-position: -1px -1px;
+  color: var(--k-ink);
+}
+
+::selection { background: rgba(91, 70, 224, .18); }
+
+/* ---------- Kopf: kompakt, linksbündig, wie eine Terminalsitzung ---------- */
+.site-header-content {
+  position: relative;
+  min-height: 0;
+  padding-top: clamp(30px, 4vw, 58px);
+  padding-bottom: clamp(22px, 3vw, 44px);
+  align-items: flex-start;
+  text-align: left;
+  flex-direction: column;
+  gap: 0;
+}
+
+.site-header-inner { text-align: left; }
+
+.site-header-content::before {
+  content: "tobias@kisium:~$";
+  display: block;
+  margin-bottom: 14px;
+  font-family: var(--k-mono);
+  font-size: 1.3rem;
+  letter-spacing: .04em;
+  color: var(--k-green);
+  opacity: 1;
+  font-weight: 600;
+}
+
+.site-title::after {
+  content: "\258D";
+  margin-left: .1em;
+  color: var(--k-accent);
+  animation: k-blink 1.1s steps(1) infinite;
+}
+
+@keyframes k-blink { 0%, 49% { opacity: 1 } 50%, 100% { opacity: 0 } }
+@media (prefers-reduced-motion: reduce) { .site-title::after { animation: none } }
+
+.site-description {
+  font-family: var(--k-mono);
+  font-size: 1.35rem;
+  letter-spacing: .01em;
+  color: var(--k-muted);
+}
+
+/* ---------- Navigation: Monospace, klein, technisch ---------- */
+.gh-head-menu .nav a,
+.gh-head-link,
+.gh-head-members a {
+  font-family: var(--k-mono);
+  font-size: 1.3rem;
+  letter-spacing: .02em;
+  color: var(--k-ink);
+  text-transform: lowercase;
+}
+
+.gh-head-menu .nav a:hover,
+.gh-head-link:hover { color: var(--k-accent); }
+
+.gh-head-menu .nav a::before {
+  content: "/";
+  color: var(--k-faint);
+  margin-right: 2px;
+}
+
+/* ---------- Beitragsliste: Einträge mit Nummer ---------- */
+.post-card-tags {
+  font-family: var(--k-mono);
+  font-size: 1.15rem;
+  letter-spacing: .05em;
+  text-transform: lowercase;
+}
+
+.post-card-primary-tag {
+  text-transform: lowercase;
+  display: inline-block;
+  padding: 3px 9px 4px;
+  border-radius: 3px;
+  background: rgba(91, 70, 224, .10);
+  color: var(--k-violet);
+  font-weight: 600;
+}
+
+.post-card-primary-tag::before { content: "#"; opacity: .5; }
+
+.post-card-title {
+  letter-spacing: -.02em;
+  line-height: 1.15;
+}
+
+.post-card-title a { color: var(--k-ink); }
+
+.post-card:hover .post-card-title a { color: var(--k-accent); }
+
+.post-card-excerpt {
+  color: var(--k-muted);
+  line-height: 1.6;
+}
+
+.post-card-meta {
+  font-family: var(--k-mono);
+  font-size: 1.15rem;
+  letter-spacing: .04em;
+  color: var(--k-faint);
+}
+
+/* ---------- Artikelansicht ---------- */
+.article-tag {
+  font-family: var(--k-mono);
+  font-size: 1.2rem;
+  letter-spacing: .08em;
+  text-transform: lowercase;
+  color: var(--k-accent);
+}
+
+.article-title { letter-spacing: -.025em; }
+
+.article-excerpt {
+  font-family: var(--k-serif);
+  color: var(--k-muted);
+}
+
+.article-byline-meta,
+.byline-meta-content,
+.byline-meta-date,
+.byline-reading-time {
+  font-family: var(--k-mono);
+  font-size: 1.2rem;
+  letter-spacing: .03em;
+  color: var(--k-faint);
+}
+
+/* Überschriften im Text: Akzentbalken statt Pseudo-Element */
+.gh-content h2 {
+  position: relative;
+  margin-left: -19px;
+  padding-left: 16px;
+  border-left: 3px solid var(--k-violet);
+  letter-spacing: -.015em;
+}
+
+.gh-content h3 {
+  position: relative;
+  margin-left: -15px;
+  padding-left: 12px;
+  border-left: 2px solid rgba(31, 127, 196, .55);
+}
+
+/* Links: unterstrichen, farbig, mit Monospace-Pfeil beim Hover */
+.gh-content a {
+  color: var(--k-accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.gh-content a:hover { background: rgba(79, 63, 208, .08); }
+
+/* Zitat: Akzentbalken, Monospace-Kennung */
+.gh-content blockquote {
+  border-left: 3px solid var(--k-amber);
+  background: rgba(217, 131, 36, .07);
+  padding: 14px 20px;
+  border-radius: 0 3px 3px 0;
+  font-style: italic;
+  color: #3d3a33;
+}
+
+/* Code: dunkles Terminal */
+.gh-content pre {
+  background: #16181c;
+  color: #e8e6e3;
+  border-radius: 4px;
+  font-family: var(--k-mono);
+  font-size: 1.4rem;
+  line-height: 1.65;
+  box-shadow: inset 3px 0 0 var(--k-green);
+}
+
+.gh-content code {
+  font-family: var(--k-mono);
+  font-size: .92em;
+  background: rgba(22, 24, 28, .06);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.gh-content pre code { background: none; padding: 0; }
+
+/* Trennlinie wie im Markdown */
+.gh-content hr {
+  border: 0;
+  border-top: 1px dashed var(--k-line);
+  margin: 3em 0;
+}
+
+/* ---------- Fußzeile: Systemzeile ---------- */
+.site-footer {
+  border-top: 1px solid var(--k-line);
+  margin-top: 64px;
+  padding-top: 26px;
+  font-family: var(--k-mono);
+  font-size: 1.2rem;
+  letter-spacing: .03em;
+  color: var(--k-faint);
+}
+
+.site-footer .copyright::before {
+  content: "\25CF";
+  color: var(--k-green);
+  margin-right: 6px;
+}
+
+.site-footer a { color: var(--k-muted); }
+.site-footer a:hover { color: var(--k-accent); }
+
+/* ---------- Mobil nachschärfen ---------- */
+@media (max-width: 700px) {
+  body { background-size: 18px 18px; }
+  .site-header-content::before { font-size: 1.15rem; margin-bottom: 10px; }
+  .gh-content h2::before { margin-right: .35em; }
+}
+
+/* ---------- Layout-Fehler: Leerraum vor der Fußzeile ---------- */
+.site-content { flex-grow: 0; }
+
+.site-footer {
+  margin: 64px 0 0;
+  padding-top: 26px;
+  padding-bottom: 32px;
+  background: transparent;
+  border-top: 1px solid var(--k-line);
+  color: var(--k-muted);
+}
+
+.site-footer a { color: var(--k-muted); }
+.site-footer a:hover { color: var(--k-accent); }
+.site-footer-nav li:not(:first-child) a:before { background: currentColor; }
+
+/* ---------- Fußzeile: eine Zeile, sauber ausgerichtet ---------- */
+.site-footer .inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 18px;
+  font-family: var(--k-mono);
+  font-size: 1.2rem;
+}
+
+.site-footer .copyright {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  text-align: left;
+}
+
+.site-footer-center { display: flex; align-items: center; gap: 14px; }
+.site-footer-nav, .gh-powered-by { margin: 0; }
+.site-footer-nav .nav { gap: 10px; }
+.site-footer-nav .nav a { color: var(--k-muted); }
+.site-footer-nav .nav a:hover { color: var(--k-accent); }
+.site-footer-nav .nav a::before { content: "/"; color: var(--k-faint); margin-right: 4px; }
+
+/* Fußzeile: Textfarbe der Theme-Regeln überschreiben (war weiß auf weiß) */
+.site-footer,
+.site-footer .copyright,
+.site-footer .copyright a,
+.site-footer .gh-powered-by a,
+.site-footer .site-footer-nav .nav a {
+  color: var(--k-muted);
+}
+
+.site-footer .copyright a:hover,
+.site-footer .gh-powered-by a:hover { color: var(--k-accent); }
+
+/* ---------- Tabellen im Artikel ---------- */
+.gh-content table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  margin: 1.5em 0;
+  font-family: var(--k-mono);
+  font-size: 1.35rem;
+  line-height: 1.5;
+}
+
+.gh-content th {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--k-ink);
+  font-size: 1.15rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--k-muted);
+}
+
+.gh-content td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--k-line);
+  vertical-align: top;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+.gh-content th { overflow-wrap: break-word; }
+
+/* ---------- Desktop: drei gleichrangige Einträge statt Magazin-Karte ---------- */
+@media (min-width: 992px) {
+  .post-feed {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 56px 40px;
+  }
+
+  .post-card,
+  .post-card-large {
+    grid-column: span 1 !important;
+    display: flex !important;
+    flex-direction: column;
+  }
+
+  .post-card-large .post-card-image-link,
+  .post-card-large .post-card-content { grid-column: auto; }
+
+  /* Kopfzeile auf Tag- und Autorenseiten: eigene Zeile über dem Raster */
+  .post-feed > section.post-card {
+    grid-column: 1 / -1 !important;
+    margin-bottom: 8px;
+  }
+
+  .post-feed > section.post-card .post-card-title {
+    font-size: 3.6rem !important;
+    line-height: 1.1 !important;
+  }
+
+  .post-feed > section.post-card .post-card-excerpt {
+    display: block !important;
+    margin-top: 10px;
+    font-family: var(--k-mono);
+    font-size: 1.35rem;
+    color: var(--k-muted);
+  }
+
+  .post-card-image-link { margin-bottom: 20px; }
+  .post-feed .post-card-header { margin-top: 0 !important; }
+  .post-feed { padding-top: 18px; }
+  .post-feed .post-card { padding-top: 0; }
+
+  .post-feed .post-card .post-card-title {
+    font-size: 2.1rem !important;
+    line-height: 1.22 !important;
+    letter-spacing: -.015em !important;
+  }
+
+  .post-card-excerpt { display: none; }
+
+  .post-card-meta { margin-top: 12px; }
+
+  /* Kopfbereich: Prompt oben, Titel links, Beschreibung rechts */
+  .site-header-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: clamp(32px, 5vw, 80px);
+    align-items: center;
+    padding-bottom: 10px;
+  }
+
+  .site-header-content::before { grid-column: 1 / -1; }
+
+  .site-header-inner { display: contents; }
+
+  .site-title { grid-column: 1; margin: 0; }
+
+  .site-description {
+    grid-column: 2;
+    align-self: end;
+    max-width: none;
+    margin: 0;
+    padding-bottom: 6px;
+  }
+}

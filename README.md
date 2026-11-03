@@ -10,16 +10,20 @@ ausschließlich aus Umgebungsvariablen** und stehen nicht im Code.
 
 | Datei | Zweck |
 | --- | --- |
-| `ghost_admin.py` | Session-Helfer für die Ghost-Admin-API (Cookie aus `GHOST_SESSION`) |
+| `ghost_admin.py` | Session-Helfer für die Ghost-Admin-API (Cookie aus `GHOST_SESSION`, Host optional aus `GHOST_URL`) |
 | `push_article.py` | Artikel als HTML in einen Ghost-Post schreiben, mit Backup und Rollback |
 | `deploy.py` | CSS und Code-Injection ins Theme deployen |
 | `cover.py` | Titelbilder erzeugen: große Zahl, Kicker, Wortmarke – einheitlich per Skript |
 | `smtp_test.py` | Prüft SMTP-Zugangsdaten in vier Schritten: Verbindung, STARTTLS, Login, Versand |
+| `design/` | `nerd.css`, `terminal-chrome.html`, `google-verify.txt` für `deploy.py` |
+| `01-mein-weg-in-die-it.html` | Artikel-HTML für `push_article.py` |
 
 ## Beispiel
 
 ```bash
 export GHOST_SESSION="s:..."        # Cookie ghost-admin-api-session
+# export GHOST_URL="https://kisium.de"   # optional, Default ist kisium.de
+mkdir -p bilder
 python3 deploy.py
 
 python3 cover.py --nummer 06 --farbe "#8a2f52" \
@@ -37,6 +41,13 @@ Zwei Dinge, die ich dabei gelernt habe:
 
 ## Voraussetzungen
 
+```bash
+python3 -m pip install -r requirements.txt
 ```
-python3 -m pip install requests pillow
-```
+
+Getestet mit Python 3.12 unter Linux. `cover.py` nutzt die DejaVu-Fonts unter
+`/usr/share/fonts/truetype/dejavu/`; auf anderen Systemen müssen die Pfade im Skript
+angepasst werden.
+
+`deploy.py` liest die Dateien aus `design/`, `push_article.py` liest
+`01-mein-weg-in-die-it.html`. Beide liegen im Repo.

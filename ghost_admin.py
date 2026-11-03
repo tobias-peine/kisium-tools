@@ -2,7 +2,8 @@
 """Admin-Zugriff auf kisium.de über die Ghost-Admin-Session.
 
 Die Session-Cookie kommt aus der Umgebungsvariable GHOST_SESSION
-(nicht in die Datei schreiben, nicht committen).
+(nicht in die Datei schreiben, nicht committen). GHOST_URL überschreibt
+den Host, Default ist https://kisium.de.
 """
 import json
 import os
@@ -10,7 +11,8 @@ import sys
 
 import requests
 
-SITE = "https://kisium.de"
+SITE = os.environ.get("GHOST_URL", "https://kisium.de").rstrip("/")
+DOMAIN = SITE.split("://", 1)[-1].split("/", 1)[0]
 
 
 def session():
@@ -18,7 +20,7 @@ def session():
     if not cookie:
         sys.exit("GHOST_SESSION fehlt (Cookie ghost-admin-api-session).")
     s = requests.Session()
-    s.cookies.set("ghost-admin-api-session", cookie, domain="kisium.de", path="/")
+    s.cookies.set("ghost-admin-api-session", cookie, domain=DOMAIN, path="/")
     s.headers.update({
         "User-Agent": "Mozilla/5.0",
         "Origin": SITE,

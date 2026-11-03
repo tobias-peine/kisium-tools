@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Prüft die Brevo-SMTP-Zugangsdaten und schickt eine Testmail.
 
-    BREVO_USER="9xxxxx@smtp-brevo.com" BREVO_KEY="xsmtpsib-..." \
+    BREVO_USER="9xxxxx@smtp-brevo.com" BREVO_KEY="<BREVO_KEY>" \
         python3 smtp_test.py deine@adresse.de
 
 Prüft in dieser Reihenfolge: Verbindung, STARTTLS, Anmeldung, Versand.

@@ -1,0 +1,298 @@
+<!-- ============================================================
+     Kisium – Terminal-Chrome
+     Gehört in Ghost: Settings → Advanced → Code Injection → Site Footer
+     Ergänzt nerd.css (Site Header) um:
+     - Fensterleiste wie ein Terminal (drei Punkte + Pfad)
+     - tmux-artige Statuszeile unten mit Uhr
+     - Shell-Zeilen: "$ ls -la" vor der Übersicht, "$ cat" vor dem Artikel
+     ============================================================ -->
+<style>
+  :root { --k-chrome-h: 34px; --k-status-h: 26px; }
+
+  .k-chrome {
+    position: fixed;
+    inset: 0 0 auto 0;
+    height: var(--k-chrome-h);
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 14px;
+    background: #f0eee9;
+    border-bottom: 1px solid rgba(22, 24, 28, .12);
+    font: 500 12px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: #6b7280;
+    letter-spacing: .02em;
+  }
+
+  .k-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .k-dot-r { background: #e2564a; }
+  .k-dot-y { background: #e0b23c; }
+  .k-dot-g { background: #3fa85f; }
+
+  .k-chrome-title { margin-left: 8px; }
+
+  .k-chrome-title::after {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 12px;
+    margin-left: 6px;
+    vertical-align: -2px;
+    background: #5b46e0;
+    animation: k-blink 1.1s steps(1) infinite;
+  }
+
+  @keyframes k-blink { 0%, 49% { opacity: 1 } 50%, 100% { opacity: 0 } }
+
+  body { padding-top: var(--k-chrome-h); padding-bottom: var(--k-status-h); }
+
+  .k-status {
+    position: fixed;
+    inset: auto 0 0 0;
+    height: var(--k-status-h);
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 14px;
+    background: #1b1d22;
+    color: #cfd3d8;
+    font: 500 11.5px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    letter-spacing: .04em;
+  }
+
+  .k-status b { color: #7fd39b; font-weight: 600; }
+  .k-status .k-sep { color: #565b63; }
+
+  /* Shell-Zeile über Liste und Artikel */
+  .k-cmd {
+    margin: 22px 0 18px;
+    padding: 0;
+    font: 600 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: #6b7280;
+    letter-spacing: .01em;
+  }
+
+  .k-cmd .u { color: #0f9d58; }
+  .k-cmd .c { color: #16181c; }
+  .k-cmd .d { color: #5b46e0; }
+
+
+  /* --- Anmeldekasten über der Fußzeile --- */
+  .k-signup {
+    width: 100%;
+    max-width: 1200px;
+    margin: 72px auto 0;
+    padding: 28px max(4vmin, 20px) 0;
+    border-top: 1px solid rgba(22, 24, 28, .12);
+  }
+
+  .k-signup > * { max-width: 620px; }
+
+  .k-signup-label {
+    display: block;
+    font: 600 13px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: #0f9d58;
+    letter-spacing: .02em;
+    margin-bottom: 12px;
+  }
+
+  .k-signup-title {
+    margin: 0 0 6px;
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    font-size: 2.2rem;
+    font-weight: 600;
+    letter-spacing: -.015em;
+    color: #16181c;
+  }
+
+  .k-signup-note {
+    margin: 0 0 18px;
+    font: 400 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: #6b7280;
+  }
+
+  .k-signup-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .k-signup-input {
+    flex: 1 1 260px;
+    min-width: 0;
+    padding: 12px 14px;
+    border: 1px solid rgba(22, 24, 28, .16);
+    border-radius: 3px;
+    background: #fff;
+    font: 400 15px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: #16181c;
+  }
+
+  .k-signup-input:focus {
+    outline: none;
+    border-color: #5b46e0;
+    box-shadow: 0 0 0 3px rgba(91, 70, 224, .15);
+  }
+
+  .k-signup-button {
+    padding: 12px 20px;
+    border: 0;
+    border-radius: 3px;
+    background: #5b46e0;
+    color: #fff;
+    font: 600 14px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    letter-spacing: .02em;
+    cursor: pointer;
+  }
+
+  .k-signup-button:hover { background: #4a37c9; }
+  .k-signup-button:disabled { opacity: .6; cursor: default; }
+
+  .k-signup-status {
+    min-height: 18px;
+    margin: 12px 0 0;
+    font: 400 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: #0f9d58;
+  }
+
+  .k-signup-status.is-error { color: #c0392b; }
+
+  @media (max-width: 700px) {
+    .k-signup { margin-top: 48px; padding-top: 22px; }
+    .k-signup-title { font-size: 1.9rem; }
+  }
+
+  @media (max-width: 900px) {
+    .k-cmd { margin-top: 18px; }
+  }
+
+  @media (max-width: 700px) {
+    :root { --k-status-h: 0px; }
+    .k-status { display: none; }
+    .k-chrome { font-size: 11px; }
+  }
+</style>
+
+<div class="k-chrome" aria-hidden="true">
+  <span class="k-dot k-dot-r"></span>
+  <span class="k-dot k-dot-y"></span>
+  <span class="k-dot k-dot-g"></span>
+  <span class="k-chrome-title">tobias@kisium: ~/blog</span>
+</div>
+
+<div class="k-status" aria-hidden="true">
+  <span><b>[0]</b> 0:blog<span class="k-sep">*</span></span>
+  <span>utf-8 <span class="k-sep">·</span> ghost 6.73 <span class="k-sep">·</span> <span id="k-path">~/blog</span></span>
+  <span id="k-clock">--:--</span>
+</div>
+
+<script>
+(function () {
+  var mono = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+
+  function cmdLine(text, command) {
+    var el = document.createElement('div');
+    el.className = 'k-cmd';
+    el.innerHTML = '<span class="u">tobias@kisium</span><span class="d">:~/blog$</span> <span class="c">' + command + '</span>';
+    return el;
+  }
+
+  // Startseite: "$ ls -la" über der Beitragsliste
+  var feed = document.querySelector('.post-feed');
+  if (feed && feed.parentNode) {
+    feed.parentNode.insertBefore(cmdLine('', 'ls -la'), feed);
+  }
+
+  // Artikelseite: "$ cat <slug>.md" über dem Artikel
+  var header = document.querySelector('.article-header');
+  if (header && header.parentNode) {
+    var slug = (location.pathname.replace(/^\/|\/$/g, '') || 'index') + '.md';
+    header.insertBefore(cmdLine('', 'cat ' + slug), header.firstChild);
+    var p = document.getElementById('k-path');
+    if (p) { p.textContent = '~/' + slug; }
+  }
+
+
+  // Anmeldekasten über der Fußzeile
+  (function () {
+    var footer = document.querySelector('.site-footer');
+    if (!footer || document.querySelector('.k-signup')) return;
+
+    var box = document.createElement('section');
+    box.className = 'k-signup';
+    box.innerHTML =
+      '<span class="k-signup-label">tobias@kisium:~$ subscribe</label>' +
+      '<p class="k-signup-title">Die Bewerbungs-Checkliste als PDF – und einmal im Monat ein Brief.</p>' +
+      '<p class="k-signup-note">12 Punkte zum Abhaken. Nach der Bestätigung deiner Adresse landest du direkt beim PDF.</p>' +
+      '<form class="k-signup-row" novalidate>' +
+        '<input class="k-signup-input" type="email" name="email" placeholder="deine@adresse.de" autocomplete="email" required aria-label="E-Mail-Adresse">' +
+        '<button class="k-signup-button" type="submit">Checkliste holen</button>' +
+      '</form>' +
+      '<p class="k-signup-status" role="status"></p>';
+
+    footer.parentNode.insertBefore(box, footer);
+
+    var form = box.querySelector('form');
+    var input = box.querySelector('.k-signup-input');
+    var button = box.querySelector('.k-signup-button');
+    var status = box.querySelector('.k-signup-status');
+
+    function say(text, isError) {
+      status.textContent = text;
+      status.className = 'k-signup-status' + (isError ? ' is-error' : '');
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var mail = (input.value || '').trim();
+      if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(mail)) {
+        say('Bitte eine gültige E-Mail-Adresse eingeben.', true);
+        return;
+      }
+      button.disabled = true;
+      say('sende …');
+
+      fetch('/members/api/integrity-token/')
+        .then(function (r) { return r.text(); })
+        .then(function (token) {
+          return fetch('/members/api/send-magic-link/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: mail,
+              emailType: 'signup',
+              labels: [],
+              name: '',
+              requestSrc: 'portal',
+              autoRedirect: true,
+              redirect: 'https://kisium.de/checkliste/',
+              integrityToken: token
+            })
+          });
+        })
+        .then(function (res) {
+          if (res.ok) {
+            say('Fast fertig: Bestätige die Mail in deinem Postfach – dann landest du beim Download.');
+            form.reset();
+          } else {
+            say('Das hat nicht geklappt. Prüf die Adresse noch einmal.', true);
+          }
+        })
+        .catch(function () {
+          say('Verbindungsfehler – bitte später noch einmal.', true);
+        })
+        .then(function () { button.disabled = false; });
+    });
+  })();
+
+  // Uhr in der Statuszeile
+  var clock = document.getElementById('k-clock');
+  if (clock) {
+    var tick = function () {
+      var d = new Date();
+      clock.textContent = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    };
+    tick();
+    setInterval(tick, 20000);
+  }
+})();
+</script>
